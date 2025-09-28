@@ -58,10 +58,13 @@ Set `NEXT_PUBLIC_BACKEND_URL` to your Cloud Run HTTPS host. The marketing pages 
 
 ### Deployment notes
 
-* **Vercel** – configure environment variables (`NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID`, `REVALIDATION_TOKEN`). Connect to the `frontend` directory.
+The end-to-end GitHub → Vercel + Cloud Run process is documented in [DEPLOYMENT.md](./DEPLOYMENT.md). Highlights:
+
+* **Vercel** – configure environment variables (`NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID`, `REVALIDATION_TOKEN`) and point the project at the `frontend/` directory.
 * **Cloud Run** – build the backend Dockerfile, mount service account credentials for Cloud SQL/GCS, and schedule Cloud SQL backups.
-* **Cloudflare** – front the Vercel + Cloud Run origins with WAF, enabling HTTP/3 and security headers pass-through.
 * **Monitoring** – hook Cloud Logging/Monitoring for Django, Vercel Analytics + GA4 for the frontend, and configure uptime checks hitting `/api/health/`.
+
+> Cloudflare hardening is optional and intentionally excluded from this iteration.
 
 ## Testing
 
