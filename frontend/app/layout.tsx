@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { GoogleTagManager } from '@/components/google-tag-manager';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
+import { EnvironmentGuard } from '@/components/environment-guard';
 
 export const metadata: Metadata = {
   title: 'Acme Growth Agency',
@@ -23,9 +24,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="scroll-smooth">
       <body className="bg-gradient-to-b from-primary-50 via-white to-white antialiased">
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
-        <Navigation />
-        <div className="min-h-screen">{children}</div>
-        <Footer />
+        <EnvironmentGuard>
+          <Navigation />
+          <div className="min-h-screen">{children}</div>
+          <Footer />
+        </EnvironmentGuard>
       </body>
     </html>
   );
