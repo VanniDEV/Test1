@@ -2,15 +2,7 @@ import { Metadata } from 'next';
 
 import { EbookGrid } from '../components/ebook-grid';
 import { EbookDownloadForm } from '../components/ebook-download-form';
-
-async function getEbooks() {
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const response = await fetch(`${baseUrl}/api/ebooks/`, { next: { revalidate: 600 } });
-  if (!response.ok) {
-    throw new Error('Failed to load ebooks');
-  }
-  return response.json();
-}
+import { getEbooksList } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: 'eBooks & Playbooks | Acme Growth Agency',
@@ -18,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function EbooksPage() {
-  const ebooks = await getEbooks();
+  const ebooks = await getEbooksList();
   const primarySlug = ebooks[0]?.slug ?? 'demand-playbook';
   return (
     <main className="bg-slate-900 pb-20 text-white">

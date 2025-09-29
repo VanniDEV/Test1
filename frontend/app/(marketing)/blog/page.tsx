@@ -1,15 +1,7 @@
 import { Metadata } from 'next';
 
 import { BlogList } from '../components/blog-list';
-
-async function getBlogPosts() {
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const response = await fetch(`${baseUrl}/api/blog-posts/`, { next: { revalidate: 300 } });
-  if (!response.ok) {
-    throw new Error('Failed to load blog posts');
-  }
-  return response.json();
-}
+import { getBlogPosts } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: 'Blog | Acme Growth Agency',

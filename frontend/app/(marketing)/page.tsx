@@ -6,29 +6,7 @@ import { Hero } from './components/hero';
 import { LeadCaptureForm } from './components/lead-capture-form';
 import { RagPublisher } from './components/rag-publisher';
 import { ServiceList } from './components/service-list';
-
-async function getPageData() {
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const [pageRes, servicesRes, ebooksRes, postsRes] = await Promise.all([
-    fetch(`${baseUrl}/api/pages/home/`, { next: { revalidate: 300 } }),
-    fetch(`${baseUrl}/api/services/`, { next: { revalidate: 300 } }),
-    fetch(`${baseUrl}/api/ebooks/`, { next: { revalidate: 300 } }),
-    fetch(`${baseUrl}/api/blog-posts/`, { next: { revalidate: 300 } })
-  ]);
-
-  if (!pageRes.ok || !servicesRes.ok || !ebooksRes.ok || !postsRes.ok) {
-    throw new Error('Failed to load marketing content');
-  }
-
-  const [page, services, ebooks, posts] = await Promise.all([
-    pageRes.json(),
-    servicesRes.json(),
-    ebooksRes.json(),
-    postsRes.json()
-  ]);
-
-  return { page, services, ebooks, posts };
-}
+import { getHomeContent } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: 'Acme Growth Agency | Revenue Marketing for SaaS',
@@ -39,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const { page, services, ebooks, posts } = await getPageData();
+  const { page, services, ebooks, posts } = await getHomeContent();
   const hero = page.hero ?? {
     title: 'Growth marketing meets AI-driven operations',
     subtitle: 'Deploy a branded Next.js front-end with a Django CMS, integrated Zoho CRM, and Retrieval-Augmented Generation for rapid publishing.'

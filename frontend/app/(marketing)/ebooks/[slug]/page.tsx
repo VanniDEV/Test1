@@ -2,20 +2,13 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 
-async function getEbook(slug: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const response = await fetch(`${baseUrl}/api/ebooks/${slug}/`);
-  if (response.status === 404) {
-    notFound();
-  }
-  if (!response.ok) {
-    throw new Error('Failed to load ebook');
-  }
-  return response.json();
-}
+import { getEbookDetail } from '@/lib/cms';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const ebook = await getEbook(params.slug);
+  const ebook = await getEbookDetail(params.slug);
+  if (!ebook) {
+    notFound();
+  }
   return {
     title: `${ebook.title} | Acme Growth Agency`,
     description: ebook.summary,
@@ -28,7 +21,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function EbookDetail({ params }: { params: { slug: string } }) {
-  const ebook = await getEbook(params.slug);
+  const ebook = await getEbookDetail(params.slug);
+  if (!ebook) {
+    notFound();
+  }
   return (
     <main className="bg-slate-900 pb-20 text-white">
       <section className="mx-auto grid max-w-5xl gap-10 px-6 py-20 md:grid-cols-[1.3fr,1fr]">

@@ -1,20 +1,13 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-async function getService(slug: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const response = await fetch(`${baseUrl}/api/services/${slug}/`);
-  if (response.status === 404) {
-    notFound();
-  }
-  if (!response.ok) {
-    throw new Error('Failed to load service');
-  }
-  return response.json();
-}
+import { getServiceDetail } from '@/lib/cms';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const service = await getService(params.slug);
+  const service = await getServiceDetail(params.slug);
+  if (!service) {
+    notFound();
+  }
   return {
     title: `${service.name} | Acme Growth Agency`,
     description: service.description
@@ -22,7 +15,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function ServiceDetail({ params }: { params: { slug: string } }) {
-  const service = await getService(params.slug);
+  const service = await getServiceDetail(params.slug);
+  if (!service) {
+    notFound();
+  }
   return (
     <main className="bg-white pb-20">
       <section className="mx-auto max-w-4xl px-6 py-20">
