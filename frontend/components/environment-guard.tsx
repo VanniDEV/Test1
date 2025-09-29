@@ -49,16 +49,18 @@ function collectMissingVariables(): MissingVar[] {
   }, []);
 }
 
-export function EnvironmentGuard({
+export async function EnvironmentGuard({
   children
 }: {
   children: React.ReactNode;
-}): React.ReactElement {
+}): Promise<React.ReactElement> {
   const missingVars = collectMissingVariables();
 
   if (missingVars.length === 0) {
     return <>{children}</>;
   }
+
+  const { RuntimeConfigForm } = await import('./runtime-config-form');
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-900/95 px-6 py-16 text-white">
@@ -103,20 +105,8 @@ export function EnvironmentGuard({
           el proyecto pertenece a un equipo) en GitHub.
         </p>
 
-        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-        {/* @ts-expect-error Server Component receives client form */}
-        <RuntimeConfigFormLoader missingVars={missingVars} />
+        <RuntimeConfigForm missingVars={missingVars} />
       </div>
     </div>
   );
-}
-
-// Lazy import to avoid client bundle when no variables are missing
-async function RuntimeConfigFormLoader({
-  missingVars
-}: {
-  missingVars: MissingVar[];
-}): Promise<JSX.Element> {
-  const { RuntimeConfigForm } = await import('./runtime-config-form');
-  return <RuntimeConfigForm missingVars={missingVars} />;
 }
