@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-const mockMode = (process.env.NEXT_PUBLIC_ENABLE_MOCKS ?? '').toLowerCase() === 'true';
+import { getBackendBaseUrl, isMockMode } from '@/lib/runtime-config';
 
 export async function POST(request: Request) {
-  if (mockMode) {
+  if (isMockMode()) {
     let body: Record<string, unknown> = {};
     try {
       body = (await request.json()) as Record<string, unknown>;
@@ -26,6 +25,7 @@ export async function POST(request: Request) {
     });
   }
 
+  const backendUrl = getBackendBaseUrl();
   if (!backendUrl) {
     return NextResponse.json({ error: 'Backend URL not configured' }, { status: 500 });
   }

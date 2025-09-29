@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { getBackendBaseUrl, hasBackendIntegration as runtimeHasBackendIntegration, isMockMode } from './runtime-config';
+
 type Hero = {
   title: string;
   subtitle: string;
@@ -118,26 +120,6 @@ const FALLBACK_SERVICE_MAP = new Map(FALLBACK_HOME.services.map((service) => [se
 const FALLBACK_EBOOK_MAP = new Map(FALLBACK_HOME.ebooks.map((ebook) => [ebook.slug, ebook]));
 const FALLBACK_POST_MAP = new Map(FALLBACK_HOME.posts.map((post) => [post.slug, post]));
 
-const ENABLE_MOCKS = (process.env.NEXT_PUBLIC_ENABLE_MOCKS ?? '').toLowerCase() === 'true';
-
-function getBackendBaseUrl(): string | null {
-  if (ENABLE_MOCKS) {
-    return null;
-  }
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  if (!baseUrl || baseUrl.trim().length === 0 || baseUrl.includes('example.com')) {
-    return null;
-  }
-
-  try {
-    const parsed = new URL(baseUrl);
-    return parsed.origin + parsed.pathname.replace(/\/$/, '');
-  } catch (error) {
-    console.warn('Invalid NEXT_PUBLIC_BACKEND_URL, falling back to seed content.', error);
-    return null;
-  }
-}
-
 async function fetchFromBackend<T>(path: string, options?: FetchOptions): Promise<T | null> {
   const baseUrl = getBackendBaseUrl();
   if (!baseUrl) {
@@ -210,10 +192,6 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
   return FALLBACK_POST_MAP.get(slug) ?? null;
 }
 
-export function hasBackendIntegration(): boolean {
-  return !ENABLE_MOCKS && getBackendBaseUrl() !== null;
-}
+export const hasBackendIntegration = runtimeHasBackendIntegration;
 
-export function isMockMode(): boolean {
-  return ENABLE_MOCKS;
-}
+export { isMockMode };

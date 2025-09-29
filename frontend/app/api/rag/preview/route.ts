@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-const mockMode = (process.env.NEXT_PUBLIC_ENABLE_MOCKS ?? '').toLowerCase() === 'true';
+import { getBackendBaseUrl, isMockMode } from '@/lib/runtime-config';
 
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
 
-  if (mockMode) {
+  if (isMockMode()) {
     const pageSlug = typeof body.page_slug === 'string' ? body.page_slug : 'home';
     const prompt = typeof body.prompt === 'string' ? body.prompt : '';
 
@@ -20,6 +19,7 @@ export async function POST(request: Request) {
     });
   }
 
+  const backendUrl = getBackendBaseUrl();
   if (!backendUrl) {
     return NextResponse.json({ error: 'Backend URL not configured' }, { status: 500 });
   }
