@@ -1,4 +1,4 @@
-import './globals.css';
+import '../styles/globals.css';
 import type { Metadata } from 'next';
 import { GoogleTagManager } from '@/components/google-tag-manager';
 import { Navigation } from '@/components/navigation';
