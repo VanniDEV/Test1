@@ -43,7 +43,7 @@ type HomePayload = {
 
 type FetchOptions = RequestInit & { next?: { revalidate?: number } };
 
-const FALLBACK_HOME: HomePayload = {
+export const FALLBACK_HOME: HomePayload = {
   page: {
     hero: {
       title: 'Launch revenue marketing faster',
@@ -118,7 +118,12 @@ const FALLBACK_SERVICE_MAP = new Map(FALLBACK_HOME.services.map((service) => [se
 const FALLBACK_EBOOK_MAP = new Map(FALLBACK_HOME.ebooks.map((ebook) => [ebook.slug, ebook]));
 const FALLBACK_POST_MAP = new Map(FALLBACK_HOME.posts.map((post) => [post.slug, post]));
 
+const ENABLE_MOCKS = (process.env.NEXT_PUBLIC_ENABLE_MOCKS ?? '').toLowerCase() === 'true';
+
 function getBackendBaseUrl(): string | null {
+  if (ENABLE_MOCKS) {
+    return null;
+  }
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   if (!baseUrl || baseUrl.trim().length === 0 || baseUrl.includes('example.com')) {
     return null;
@@ -206,5 +211,9 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
 }
 
 export function hasBackendIntegration(): boolean {
-  return getBackendBaseUrl() !== null;
+  return !ENABLE_MOCKS && getBackendBaseUrl() !== null;
+}
+
+export function isMockMode(): boolean {
+  return ENABLE_MOCKS;
 }

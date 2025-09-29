@@ -1,5 +1,7 @@
 import React from 'react';
 
+const MOCK_MODE_ENABLED = (process.env.NEXT_PUBLIC_ENABLE_MOCKS ?? '').toLowerCase() === 'true';
+
 const REQUIRED_ENV_VARS = [
   {
     key: 'NEXT_PUBLIC_BACKEND_URL',
@@ -64,6 +66,10 @@ export async function EnvironmentGuard({
 }: {
   children: React.ReactNode;
 }): Promise<React.ReactElement> {
+  if (MOCK_MODE_ENABLED) {
+    return <>{children}</>;
+  }
+
   const missingVars = collectMissingVariables();
 
   if (missingVars.length === 0) {

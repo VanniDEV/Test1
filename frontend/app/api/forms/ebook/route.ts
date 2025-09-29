@@ -1,8 +1,31 @@
 import { NextResponse } from 'next/server';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+const mockMode = (process.env.NEXT_PUBLIC_ENABLE_MOCKS ?? '').toLowerCase() === 'true';
 
 export async function POST(request: Request) {
+  if (mockMode) {
+    let body: Record<string, unknown> = {};
+    try {
+      body = (await request.json()) as Record<string, unknown>;
+    } catch {
+      // ignore
+    }
+
+    const email = typeof body.email === 'string' ? body.email : 'mock@example.com';
+
+    return NextResponse.json({
+      data: [
+        {
+          code: 'MOCK_SUCCESS',
+          details: { id: 'mock-ebook', email },
+          message: 'Ebook request stored locally (mock mode)',
+          status: 'success'
+        }
+      ]
+    });
+  }
+
   if (!backendUrl) {
     return NextResponse.json({ error: 'Backend URL not configured' }, { status: 500 });
   }

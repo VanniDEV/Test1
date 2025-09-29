@@ -28,6 +28,19 @@ def _get_access_token() -> str:
 
 
 def create_lead(payload: Dict[str, Any]) -> Dict[str, Any]:
+    if settings.ENABLE_MOCKS:
+        logger.info("Mock mode enabled – returning fake Zoho lead payload")
+        return {
+            "data": [
+                {
+                    "code": "MOCK_SUCCESS",
+                    "details": {"id": "mock-lead", "email": payload.get("Email")},
+                    "message": "Lead stored locally (mock)",
+                    "status": "success",
+                }
+            ]
+        }
+
     token = _get_access_token()
     headers = {"Authorization": f"Zoho-oauthtoken {token}"}
     response = requests.post(

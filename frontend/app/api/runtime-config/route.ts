@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 
-type RuntimeConfigPayload = Partial<Record<'NEXT_PUBLIC_BACKEND_URL' | 'NEXT_PUBLIC_GTM_ID' | 'REVALIDATION_TOKEN', string>>;
+type RuntimeConfigPayload = Partial<
+  Record<'NEXT_PUBLIC_BACKEND_URL' | 'NEXT_PUBLIC_GTM_ID' | 'NEXT_PUBLIC_ENABLE_MOCKS' | 'REVALIDATION_TOKEN', string>
+>;
 
 const REQUIRED_KEYS = ['NEXT_PUBLIC_BACKEND_URL', 'REVALIDATION_TOKEN'] as const;
-const OPTIONAL_KEYS = ['NEXT_PUBLIC_GTM_ID'] as const;
+const OPTIONAL_KEYS = ['NEXT_PUBLIC_GTM_ID', 'NEXT_PUBLIC_ENABLE_MOCKS'] as const;
 const ALLOWED_KEYS = [...REQUIRED_KEYS, ...OPTIONAL_KEYS] as const;
 
 const TARGETS = ['production', 'preview', 'development'];

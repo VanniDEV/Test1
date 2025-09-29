@@ -42,7 +42,7 @@ python manage.py createsuperuser
 python manage.py runserver 0.0.0.0:8000
 ```
 
-Define las variables exportándolas en tu shell o asignándolas como secretos de GitHub antes de ejecutar los comandos anteriores (usa `backend/.env.sample` como referencia). Las claves incluyen las credenciales OAuth de Zoho, la cadena de conexión de Cloud SQL y los toggles de IA (`RAG_MODEL_NAME`, `RAG_PROVIDER`). El helper `create_lead` intercambia el refresh token por un access token y envía los leads a Zoho CRM con el owner configurado.
+Define las variables exportándolas en tu shell o asignándolas como secretos de GitHub antes de ejecutar los comandos anteriores (usa `backend/.env.sample` como referencia). Las claves incluyen las credenciales OAuth de Zoho, la cadena de conexión de Cloud SQL y los toggles de IA (`RAG_MODEL_NAME`, `RAG_PROVIDER`). Para pruebas sin dependencias externas activa `ENABLE_MOCKS=true`; el helper `create_lead` omitirá la llamada a Zoho y los endpoints devolverán datos precargados.
 
 ### Frontend
 
@@ -51,6 +51,7 @@ cd frontend
 npm install
 export NEXT_PUBLIC_BACKEND_URL="http://localhost:8000"
 export NEXT_PUBLIC_GTM_ID="GTM-DEV"
+export NEXT_PUBLIC_ENABLE_MOCKS="false"
 export REVALIDATION_TOKEN="local-dev-token"
 npm run dev
 ```
@@ -58,15 +59,16 @@ npm run dev
 Valores prácticos mientras validas el proyecto:
 
 * `NEXT_PUBLIC_BACKEND_URL` – usa `http://localhost:8000` si levantas Django con `python manage.py runserver`. Cuando publiques, reemplázalo por la URL HTTPS pública de tu backend (por ejemplo, el dominio de Cloud Run `https://<servicio>.a.run.app`).
+* `NEXT_PUBLIC_ENABLE_MOCKS` – cambia a `true` para que el frontend utilice mocks end-to-end (formularios, RAG y contenido) sin requerir un backend accesible.
 * `REVALIDATION_TOKEN` – define una cadena aleatoria (p.ej. `openssl rand -hex 32`) y reutilízala tanto en el frontend (Vercel) como en el backend (`REVALIDATION_TOKEN` en `backend/.env`). Almacénala como secreto en GitHub si piensas sincronizarla desde Actions.
 
-Si alguno de los valores obligatorios está ausente en el despliegue, el `EnvironmentGuard` mostrará un formulario para sincronizarlos automáticamente con Vercel usando los secretos del entorno de GitHub.
+Si alguno de los valores obligatorios está ausente en el despliegue, el `EnvironmentGuard` mostrará un formulario para sincronizarlos automáticamente con Vercel usando los secretos del entorno de GitHub. Cuando `NEXT_PUBLIC_ENABLE_MOCKS=true`, el guardián se omite para que puedas navegar la experiencia demo sin configurar secretos.
 
 ### Deployment notes
 
 The end-to-end GitHub → Vercel + Cloud Run process is documented in [DEPLOYMENT.md](./DEPLOYMENT.md). Highlights:
 
-* **Vercel** – configure environment variables (`NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID`, `REVALIDATION_TOKEN`) and point the project at the `frontend/` directory. The included [`vercel.json`](./vercel.json) file tells Vercel to build the nested Next.js app automatically when you import the repository.
+* **Vercel** – configure environment variables (`NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_ENABLE_MOCKS`, `REVALIDATION_TOKEN`) and point the project at the `frontend/` directory. The included [`vercel.json`](./vercel.json) file tells Vercel to build the nested Next.js app automatically when you import the repository.
 * **GitHub Actions** – the provided [`Deploy frontend to Vercel`](.github/workflows/vercel-deploy.yml) workflow now runs only on manual dispatch so the platform's automatic Git builds don't multiply into duplicate deployments.
 * **Cloud Run** – build the backend Dockerfile, mount service account credentials for Cloud SQL/GCS, and schedule Cloud SQL backups.
 * **Monitoring** – hook Cloud Logging/Monitoring for Django, Vercel Analytics + GA4 for the frontend, and configure uptime checks hitting `/api/health/`.

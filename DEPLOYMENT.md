@@ -31,7 +31,7 @@ git push -u origin main
 1. Enable the Cloud Run, Cloud Build, Secret Manager, Artifact Registry, and Cloud SQL Admin APIs in your Google Cloud project.
 2. Provision a **Cloud SQL for PostgreSQL** instance and create a database/user pair. Note the connection string for later (update `DATABASE_URL`).
 3. Create a **Google Cloud Storage** bucket for media uploads.
-4. Build and deploy the service using the existing Dockerfile:
+4. Build and deploy the service using the existing Dockerfile (deja `ENABLE_MOCKS=true` si quieres mantener datos simulados mientras publicas el backend por primera vez):
 
    ```bash
    gcloud builds submit --tag gcr.io/PROJECT_ID/marketing-backend ./backend
@@ -61,6 +61,7 @@ git push -u origin main
    | --- | --- |
    | `NEXT_PUBLIC_BACKEND_URL` | Public HTTPS URL of the backend (en local apunta a `http://localhost:8000`; en producción usa el dominio de Cloud Run o el host que exponga Django). |
    | `NEXT_PUBLIC_GTM_ID` | GTM container ID if you use Google Tag Manager (leave blank to disable). |
+   | `NEXT_PUBLIC_ENABLE_MOCKS` | Ponlo en `true` para navegar la versión demo con APIs simuladas; deja `false` cuando el backend esté disponible. |
    | `REVALIDATION_TOKEN` | Shared secret for ISR revalidation; genera un valor aleatorio (por ejemplo con `openssl rand -hex 32`) y reutilízalo en el backend (`REVALIDATION_TOKEN`). |
 
 4. Set the **Framework Preset** to Next.js and leave the default build/run commands (`npm install`, `npm run build`).
@@ -72,7 +73,7 @@ git push -u origin main
 This repository ships with `.github/workflows/vercel-deploy.yml`, which can build and release the frontend without leaving GitHub.
 
 1. In your project settings on GitHub, add the secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` (you can copy these values from the **Settings → Tokens** and **Project Settings → General** sections inside Vercel).
-2. Añade también `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID` y `REVALIDATION_TOKEN` como secretos para que el paso de sincronización pueda publicarlos en Vercel.
+2. Añade también `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_ENABLE_MOCKS` y `REVALIDATION_TOKEN` como secretos para que el paso de sincronización pueda publicarlos en Vercel.
 3. Trigger the workflow manually via **Actions → Deploy frontend to Vercel → Run workflow** whenever you need to force a redeploy from GitHub.
 4. The job sincroniza las variables, ejecuta `vercel pull`, construye con `vercel build --prod` y publica el artefacto con `vercel deploy --prebuilt --prod`, evitando duplicar builds con el flujo automático de Vercel.
 

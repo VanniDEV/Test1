@@ -13,3 +13,8 @@
 - Replaced the `.env` driven frontend guard with a Vercel API-backed form that sincronizes missing variables desde los secretos de GitHub.
 - Added an API route and client helper to push runtime configuration to Vercel directly from the UI.
 - Enhanced the GitHub Actions workflow and deployment guide to propagar valores obligatorios sin depender de archivos `.env`.
+
+## v1.1.0 - Mockable full-stack mode
+- Added `ENABLE_MOCKS`/`NEXT_PUBLIC_ENABLE_MOCKS` toggles to serve seeded content, Zoho submissions, and RAG workflows without external services.
+- Backed all Django viewsets with mock responses when the flag is active so API consumers behave consistently during demos.
+- Updated Next.js API routes, guard rails, and documentation to explain how to run the experience entirely in mocked mode.
