@@ -6,14 +6,24 @@ const REQUIRED_ENV_VARS = [
     label: 'NEXT_PUBLIC_BACKEND_URL',
     description:
       'URL base del backend de Django accesible públicamente para las llamadas desde Next.js.',
-    example: 'https://tu-backend.example.com'
+    example: 'http://localhost:8000',
+    help: [
+      'En local apunta a http://localhost:8000 mientras ejecutas `python manage.py runserver`.',
+      'En producción usa la URL HTTPS pública del backend (por ejemplo, el dominio de Cloud Run: https://<servicio>.a.run.app).',
+      'Si publicas detrás de un proxy propio, asegúrate de incluir el protocolo y evitar barras extra al final.'
+    ]
   },
   {
     key: 'REVALIDATION_TOKEN',
     label: 'REVALIDATION_TOKEN',
     description:
       'Token compartido entre el backend y Next.js para revalidar rutas con ISR y webhooks.',
-    example: 'genera-un-token-seguro'
+    example: 'openssl rand -hex 32',
+    help: [
+      'Genera una cadena aleatoria (por ejemplo con `openssl rand -hex 32`) y cópiala en ambos proyectos.',
+      'Define el mismo valor como variable de entorno en Vercel y en el backend de Django (`REVALIDATION_TOKEN`).',
+      'Cuando uses GitHub Actions, guarda el token como secreto para que la sincronización con Vercel funcione.'
+    ]
   }
 ] as const;
 
@@ -87,6 +97,13 @@ export async function EnvironmentGuard({
               <p className="text-xs text-slate-500">
                 Sugerencia para pruebas locales: <code>{envVar.example}</code>
               </p>
+              {envVar.help && (
+                <ul className="list-disc space-y-1 pl-5 text-xs text-slate-500">
+                  {envVar.help.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              )}
               {envVar.value ? (
                 <p className="text-xs text-amber-600">
                   Valor detectado en el entorno actual: <code>{envVar.value}</code>

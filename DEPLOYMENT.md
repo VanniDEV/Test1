@@ -59,9 +59,9 @@ git push -u origin main
 
    | Variable | Description |
    | --- | --- |
-   | `NEXT_PUBLIC_BACKEND_URL` | Public HTTPS URL of the Cloud Run backend (e.g., `https://marketing-backend-xyz.a.run.app`). |
+   | `NEXT_PUBLIC_BACKEND_URL` | Public HTTPS URL of the backend (en local apunta a `http://localhost:8000`; en producción usa el dominio de Cloud Run o el host que exponga Django). |
    | `NEXT_PUBLIC_GTM_ID` | GTM container ID if you use Google Tag Manager (leave blank to disable). |
-   | `REVALIDATION_TOKEN` | Shared secret used by the ISR revalidation endpoint. |
+   | `REVALIDATION_TOKEN` | Shared secret for ISR revalidation; genera un valor aleatorio (por ejemplo con `openssl rand -hex 32`) y reutilízalo en el backend (`REVALIDATION_TOKEN`). |
 
 4. Set the **Framework Preset** to Next.js and leave the default build/run commands (`npm install`, `npm run build`).
 5. Trigger the first deployment. Vercel will expose a `*.vercel.app` domain once the build succeeds.

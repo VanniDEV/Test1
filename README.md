@@ -55,7 +55,12 @@ export REVALIDATION_TOKEN="local-dev-token"
 npm run dev
 ```
 
-Set `NEXT_PUBLIC_BACKEND_URL` to your Cloud Run HTTPS host. Si alguno de los valores obligatorios está ausente en el despliegue, el `EnvironmentGuard` mostrará un formulario para sincronizarlos automáticamente con Vercel usando los secretos del entorno de GitHub.
+Valores prácticos mientras validas el proyecto:
+
+* `NEXT_PUBLIC_BACKEND_URL` – usa `http://localhost:8000` si levantas Django con `python manage.py runserver`. Cuando publiques, reemplázalo por la URL HTTPS pública de tu backend (por ejemplo, el dominio de Cloud Run `https://<servicio>.a.run.app`).
+* `REVALIDATION_TOKEN` – define una cadena aleatoria (p.ej. `openssl rand -hex 32`) y reutilízala tanto en el frontend (Vercel) como en el backend (`REVALIDATION_TOKEN` en `backend/.env`). Almacénala como secreto en GitHub si piensas sincronizarla desde Actions.
+
+Si alguno de los valores obligatorios está ausente en el despliegue, el `EnvironmentGuard` mostrará un formulario para sincronizarlos automáticamente con Vercel usando los secretos del entorno de GitHub.
 
 ### Deployment notes
 

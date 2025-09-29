@@ -111,6 +111,7 @@ ZOHO_LEAD_OWNER_ID = os.getenv("ZOHO_LEAD_OWNER_ID", "")
 
 RAG_MODEL_NAME = os.getenv("RAG_MODEL_NAME", "text-embedding-3-small")
 RAG_PROVIDER = os.getenv("RAG_PROVIDER", "openai")
+REVALIDATION_TOKEN = os.getenv("REVALIDATION_TOKEN", "")
 
 SECURE_SSL_REDIRECT = os.getenv("DJANGO_SECURE_SSL_REDIRECT", "true").lower() == "true"
 SESSION_COOKIE_SECURE = SECURE_SSL_REDIRECT
