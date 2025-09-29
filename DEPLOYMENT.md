@@ -39,8 +39,8 @@ git push -u origin main
      --image gcr.io/PROJECT_ID/marketing-backend \
      --region REGION \
      --allow-unauthenticated \
-     --set-env-vars "$(cat backend/.env | xargs)" \
-     --set-secrets=DJANGO_SECRET_KEY=projects/PROJECT_ID/secrets/DJANGO_SECRET_KEY:latest
+     --set-env-vars DJANGO_DEBUG=false,DJANGO_ALLOWED_HOSTS=frontend.vercel.app,NEXT_PUBLIC_BACKEND_URL=https://marketing-backend-xyz.a.run.app \
+     --set-secrets=DJANGO_SECRET_KEY=projects/PROJECT_ID/secrets/DJANGO_SECRET_KEY:latest,ZOHO_CLIENT_SECRET=projects/PROJECT_ID/secrets/ZOHO_CLIENT_SECRET:latest,ZOHO_REFRESH_TOKEN=projects/PROJECT_ID/secrets/ZOHO_REFRESH_TOKEN:latest
    ```
 
 5. Attach the Cloud SQL instance (either via the Cloud Run UI or `--add-cloudsql-instances` flag) and mount a service account with permissions for Cloud SQL and GCS.
@@ -55,7 +55,7 @@ git push -u origin main
 
 1. Sign in to Vercel and create a new project by importing the GitHub repository created in step 1.
 2. Thanks to the root-level [`vercel.json`](./vercel.json), Vercel auto-detects that the Next.js app lives in `frontend/`. Confirm the detected root directory shows `frontend/` before continuing.
-3. Configure the following Environment Variables on Vercel:
+3. Configura los secretos `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID` y `REVALIDATION_TOKEN` en GitHub (Settings → Environments/Secrets). El workflow de GitHub Actions sincroniza estos valores con Vercel en cada ejecución y el formulario de bloqueo en el frontend permite cargarlos manualmente si están ausentes.
 
    | Variable | Description |
    | --- | --- |
@@ -72,8 +72,9 @@ git push -u origin main
 This repository ships with `.github/workflows/vercel-deploy.yml`, which can build and release the frontend without leaving GitHub.
 
 1. In your project settings on GitHub, add the secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` (you can copy these values from the **Settings → Tokens** and **Project Settings → General** sections inside Vercel).
-2. Trigger the workflow manually via **Actions → Deploy frontend to Vercel → Run workflow** whenever you need to force a redeploy from GitHub.
-3. The job will install dependencies, run `vercel pull`, build with `vercel build --prod`, and publish the prebuilt output using `vercel deploy --prebuilt --prod`—without racing the automatic builds that Vercel kicks off for each commit.
+2. Añade también `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID` y `REVALIDATION_TOKEN` como secretos para que el paso de sincronización pueda publicarlos en Vercel.
+3. Trigger the workflow manually via **Actions → Deploy frontend to Vercel → Run workflow** whenever you need to force a redeploy from GitHub.
+4. The job sincroniza las variables, ejecuta `vercel pull`, construye con `vercel build --prod` y publica el artefacto con `vercel deploy --prebuilt --prod`, evitando duplicar builds con el flujo automático de Vercel.
 
 When the workflow finishes, the URL reported by the final deployment step matches what you would see in the Vercel dashboard.
 

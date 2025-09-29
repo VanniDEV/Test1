@@ -29,6 +29,99 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Sync runtime environment variables
+        env:
+          NEXT_PUBLIC_BACKEND_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
+          NEXT_PUBLIC_GTM_ID: ${{ secrets.NEXT_PUBLIC_GTM_ID }}
+          REVALIDATION_TOKEN: ${{ secrets.REVALIDATION_TOKEN }}
+        run: |
+          node <<'NODE'
+          const requiredKeys = [
+            'NEXT_PUBLIC_BACKEND_URL',
+            'NEXT_PUBLIC_GTM_ID',
+            'REVALIDATION_TOKEN'
+          ];
+
+          const projectId = process.env.VERCEL_PROJECT_ID;
+          const token = process.env.VERCEL_TOKEN;
+          const orgId = process.env.VERCEL_ORG_ID;
+
+          if (!projectId || !token) {
+            console.log('Missing Vercel project credentials; skipping sync.');
+            process.exit(0);
+          }
+
+          const baseUrl = 'https://api.vercel.com';
+          const headers = {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          };
+
+          function buildUrl(path, includeTeam = true) {
+            if (!orgId || !includeTeam) {
+              return `${baseUrl}${path}`;
+            }
+
+            return `${baseUrl}${path}${path.includes('?') ? `&teamId=${orgId}` : `?teamId=${orgId}`}`;
+          }
+
+          async function request(path, options = {}, includeTeam = true) {
+            const response = await fetch(buildUrl(path, includeTeam), {
+              ...options,
+              headers: {
+                ...headers,
+                ...(options.headers ?? {})
+              }
+            });
+
+            if (!response.ok) {
+              const text = await response.text();
+              throw new Error(`Vercel API error (${response.status}): ${text}`);
+            }
+
+            return response.status === 204 ? null : response.json();
+          }
+
+          (async () => {
+            const existing = await request(`/v9/projects/${projectId}/env`);
+            const envList = Array.isArray(existing?.envs) ? existing.envs : [];
+            const map = new Map(envList.map((env) => [env.key, env]));
+
+            for (const key of requiredKeys) {
+              const value = process.env[key];
+              if (!value) {
+                console.log(`Skipping ${key} – no value provided in GitHub secrets.`);
+                continue;
+              }
+
+              const body = JSON.stringify({
+                key,
+                value,
+                target: ['production', 'preview', 'development'],
+                type: 'encrypted'
+              });
+
+              if (map.has(key)) {
+                const envId = map.get(key).id;
+                await request(`/v10/projects/${projectId}/env/${envId}`, {
+                  method: 'PATCH',
+                  body
+                });
+                console.log(`Updated ${key} in Vercel.`);
+              } else {
+                await request(`/v10/projects/${projectId}/env`, {
+                  method: 'POST',
+                  body
+                });
+                console.log(`Created ${key} in Vercel.`);
+              }
+            }
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
       - name: Pull Vercel environment
         run: npx vercel pull --yes --environment=production
 

@@ -25,7 +25,7 @@ Full-stack starter that connects a branded Next.js marketing site with a Django 
 
 * Next.js 14 App Router, TypeScript, and Tailwind CSS theme reflecting the provided brand brief (Home, Services, eBooks, Blog).
 * Server components fetch CMS data via ISR-enabled requests; client components manage forms, Zoho submissions, and RAG publishing controls.
-* API routes proxy form submissions and provide on-demand ISR revalidation secured by `REVALIDATION_TOKEN`.
+* API routes proxy form submissions, sincronizan credenciales con Vercel cuando faltan y proporcionan revalidación ISR asegurada por `REVALIDATION_TOKEN`.
 * Technical SEO assets: OG metadata, sitemap config (`next-sitemap`), `robots.txt`, reusable GA4/GTM injection component, and security headers via `next.config.mjs`.
 
 ## Getting started
@@ -37,24 +37,25 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.sample .env
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver 0.0.0.0:8000
 ```
 
-Environment variables cover Zoho OAuth credentials, Cloud SQL connection string, and AI provider toggles (`RAG_MODEL_NAME`, `RAG_PROVIDER`). The `create_lead` helper exchanges the refresh token for an access token and posts Zoho CRM leads under the configured owner.
+Define las variables exportándolas en tu shell o asignándolas como secretos de GitHub antes de ejecutar los comandos anteriores (usa `backend/.env.sample` como referencia). Las claves incluyen las credenciales OAuth de Zoho, la cadena de conexión de Cloud SQL y los toggles de IA (`RAG_MODEL_NAME`, `RAG_PROVIDER`). El helper `create_lead` intercambia el refresh token por un access token y envía los leads a Zoho CRM con el owner configurado.
 
 ### Frontend
 
 ```bash
 cd frontend
 npm install
-cp .env.example .env.local
+export NEXT_PUBLIC_BACKEND_URL="http://localhost:8000"
+export NEXT_PUBLIC_GTM_ID="GTM-DEV"
+export REVALIDATION_TOKEN="local-dev-token"
 npm run dev
 ```
 
-Set `NEXT_PUBLIC_BACKEND_URL` to your Cloud Run HTTPS host. The marketing pages will hydrate from the Django APIs, submit leads through `/api/forms/*`, and surface the RAG “Publish to site” workflow that hits the backend adapter.
+Set `NEXT_PUBLIC_BACKEND_URL` to your Cloud Run HTTPS host. Si alguno de los valores obligatorios está ausente en el despliegue, el `EnvironmentGuard` mostrará un formulario para sincronizarlos automáticamente con Vercel usando los secretos del entorno de GitHub.
 
 ### Deployment notes
 

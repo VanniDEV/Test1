@@ -6,7 +6,7 @@ const REQUIRED_ENV_VARS = [
     label: 'NEXT_PUBLIC_BACKEND_URL',
     description:
       'URL base del backend de Django accesible públicamente para las llamadas desde Next.js.',
-    example: 'http://localhost:8000'
+    example: 'https://tu-backend.example.com'
   },
   {
     key: 'REVALIDATION_TOKEN',
@@ -62,15 +62,16 @@ export function EnvironmentGuard({
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-900/95 px-6 py-16 text-white">
-      <form className="w-full max-w-3xl space-y-8 rounded-2xl bg-white p-10 text-slate-900 shadow-2xl">
+      <div className="w-full max-w-3xl space-y-8 rounded-2xl bg-white p-10 text-slate-900 shadow-2xl">
         <header className="space-y-4">
           <h1 className="text-3xl font-semibold text-slate-900">
             Configura las variables de entorno obligatorias
           </h1>
           <p className="text-base text-slate-600">
-            Antes de continuar debes completar el archivo <code>frontend/.env.local</code> con los
-            valores requeridos. Este formulario es informativo y te guía sobre qué valores faltan.
-            Una vez actualices el archivo, reinicia el servidor de desarrollo de Next.js.
+            El repositorio toma las credenciales desde los secretos del entorno de GitHub. Si todavía no
+            existen en Vercel puedes cargarlas directamente desde este formulario y el proyecto intentará
+            sincronizarlas mediante la API de Vercel usando las credenciales de servicio configuradas en
+            GitHub.
           </p>
         </header>
 
@@ -81,44 +82,41 @@ export function EnvironmentGuard({
                 {envVar.label}
               </legend>
               <p className="text-sm text-slate-600">{envVar.description}</p>
-              <label className="block space-y-2">
-                <span className="text-xs font-medium uppercase text-slate-500">
-                  Valor sugerido para desarrollo local
-                </span>
-                <input
-                  readOnly
-                  value={envVar.example}
-                  className={
-                    'w-full rounded-md border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-mono text-slate-700 shadow-inner focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500'
-                  }
-                />
-              </label>
+              <p className="text-xs text-slate-500">
+                Sugerencia para pruebas locales: <code>{envVar.example}</code>
+              </p>
               {envVar.value ? (
                 <p className="text-xs text-amber-600">
-                  Valor actual detectado: <code>{envVar.value}</code>
+                  Valor detectado en el entorno actual: <code>{envVar.value}</code>
                 </p>
               ) : (
-                <p className="text-xs text-amber-600">Actualmente no se detectó ningún valor configurado.</p>
+                <p className="text-xs text-amber-600">No se detectó un valor configurado.</p>
               )}
-              <p className="text-xs text-slate-500">
-                Edita <code>frontend/.env.local</code>, guarda los cambios y reinicia con
-                <code> npm run dev</code>.
-              </p>
             </fieldset>
           ))}
         </section>
 
-        <footer className="space-y-3 rounded-lg bg-indigo-50 p-4 text-sm text-slate-700">
-          <p>
-            Si los valores ya fueron actualizados, detén el servidor de desarrollo, vuelve a iniciar
-            <code> npm run dev</code> e intenta recargar la página.
-          </p>
-          <p>
-            Recuerda mantener estas variables sincronizadas con los entornos de staging y producción
-            antes del despliegue en Vercel.
-          </p>
-        </footer>
-      </form>
+        <p className="rounded-lg bg-indigo-50 p-4 text-sm text-slate-700">
+          Completa los valores y pulsa “Guardar y sincronizar” para que queden almacenados como variables de
+          entorno en tu proyecto de Vercel. El proceso requiere que existan los secretos
+          <code> VERCEL_TOKEN</code> y <code>VERCEL_PROJECT_ID</code> (además de <code>VERCEL_ORG_ID</code> si
+          el proyecto pertenece a un equipo) en GitHub.
+        </p>
+
+        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+        {/* @ts-expect-error Server Component receives client form */}
+        <RuntimeConfigFormLoader missingVars={missingVars} />
+      </div>
     </div>
   );
+}
+
+// Lazy import to avoid client bundle when no variables are missing
+async function RuntimeConfigFormLoader({
+  missingVars
+}: {
+  missingVars: MissingVar[];
+}): Promise<JSX.Element> {
+  const { RuntimeConfigForm } = await import('./runtime-config-form');
+  return <RuntimeConfigForm missingVars={missingVars} />;
 }
