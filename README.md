@@ -61,6 +61,7 @@ Set `NEXT_PUBLIC_BACKEND_URL` to your Cloud Run HTTPS host. The marketing pages 
 The end-to-end GitHub → Vercel + Cloud Run process is documented in [DEPLOYMENT.md](./DEPLOYMENT.md). Highlights:
 
 * **Vercel** – configure environment variables (`NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID`, `REVALIDATION_TOKEN`) and point the project at the `frontend/` directory. The included [`vercel.json`](./vercel.json) file tells Vercel to build the nested Next.js app automatically when you import the repository.
+* **GitHub Actions** – the provided [`Deploy frontend to Vercel`](.github/workflows/vercel-deploy.yml) workflow now runs only on manual dispatch so the platform's automatic Git builds don't multiply into duplicate deployments.
 * **Cloud Run** – build the backend Dockerfile, mount service account credentials for Cloud SQL/GCS, and schedule Cloud SQL backups.
 * **Monitoring** – hook Cloud Logging/Monitoring for Django, Vercel Analytics + GA4 for the frontend, and configure uptime checks hitting `/api/health/`.
 

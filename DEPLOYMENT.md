@@ -72,8 +72,8 @@ git push -u origin main
 This repository ships with `.github/workflows/vercel-deploy.yml`, which can build and release the frontend without leaving GitHub.
 
 1. In your project settings on GitHub, add the secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` (you can copy these values from the **Settings → Tokens** and **Project Settings → General** sections inside Vercel).
-2. Push a commit to the `main` branch that touches the `frontend/` directory—or start the workflow manually via **Actions → Deploy frontend to Vercel → Run workflow**.
-3. The job will install dependencies, run `vercel pull`, build with `vercel build --prod`, and publish the prebuilt output using `vercel deploy --prebuilt --prod`.
+2. Trigger the workflow manually via **Actions → Deploy frontend to Vercel → Run workflow** whenever you need to force a redeploy from GitHub.
+3. The job will install dependencies, run `vercel pull`, build with `vercel build --prod`, and publish the prebuilt output using `vercel deploy --prebuilt --prod`—without racing the automatic builds that Vercel kicks off for each commit.
 
 When the workflow finishes, the URL reported by the final deployment step matches what you would see in the Vercel dashboard.
 
