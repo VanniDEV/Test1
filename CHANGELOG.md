@@ -18,3 +18,8 @@
 - Added `ENABLE_MOCKS`/`NEXT_PUBLIC_ENABLE_MOCKS` toggles to serve seeded content, Zoho submissions, and RAG workflows without external services.
 - Backed all Django viewsets with mock responses when the flag is active so API consumers behave consistently during demos.
 - Updated Next.js API routes, guard rails, and documentation to explain how to run the experience entirely in mocked mode.
+
+## v1.1.1 - Remove runtime config guard
+- Eliminated the frontend environment guard and its supporting API so the site no longer blocks rendering when variables faltan.
+- Simplified the root layout to render navigation, content, and footer without the blocking form wrapper.
+- Updated documentation to reflect that environment variables must now configurarse directamente en Vercel o en el entorno local.

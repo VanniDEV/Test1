@@ -55,7 +55,7 @@ git push -u origin main
 
 1. Sign in to Vercel and create a new project by importing the GitHub repository created in step 1.
 2. Thanks to the root-level [`vercel.json`](./vercel.json), Vercel auto-detects that the Next.js app lives in `frontend/`. Confirm the detected root directory shows `frontend/` before continuing.
-3. Configura los secretos `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID` y `REVALIDATION_TOKEN` en GitHub (Settings → Environments/Secrets). El workflow de GitHub Actions sincroniza estos valores con Vercel en cada ejecución y el formulario de bloqueo en el frontend permite cargarlos manualmente si están ausentes.
+3. Configura los secretos `NEXT_PUBLIC_BACKEND_URL`, `NEXT_PUBLIC_GTM_ID` y `REVALIDATION_TOKEN` en GitHub (Settings → Environments/Secrets). El workflow de GitHub Actions sincroniza estos valores con Vercel en cada ejecución.
 
    | Variable | Description |
    | --- | --- |

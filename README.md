@@ -25,7 +25,7 @@ Full-stack starter that connects a branded Next.js marketing site with a Django 
 
 * Next.js 14 App Router, TypeScript, and Tailwind CSS theme reflecting the provided brand brief (Home, Services, eBooks, Blog).
 * Server components fetch CMS data via ISR-enabled requests; client components manage forms, Zoho submissions, and RAG publishing controls.
-* API routes proxy form submissions, sincronizan credenciales con Vercel cuando faltan y proporcionan revalidación ISR asegurada por `REVALIDATION_TOKEN`.
+* API routes proxy form submissions and provide ISR revalidation secured by `REVALIDATION_TOKEN`.
 * Technical SEO assets: OG metadata, sitemap config (`next-sitemap`), `robots.txt`, reusable GA4/GTM injection component, and security headers via `next.config.mjs`.
 
 ## Getting started
@@ -61,8 +61,6 @@ Valores prácticos mientras validas el proyecto:
 * `NEXT_PUBLIC_BACKEND_URL` – usa `http://localhost:8000` si levantas Django con `python manage.py runserver`. Cuando publiques, reemplázalo por la URL HTTPS pública de tu backend (por ejemplo, el dominio de Cloud Run `https://<servicio>.a.run.app`).
 * `NEXT_PUBLIC_ENABLE_MOCKS` – cambia a `true` para que el frontend utilice mocks end-to-end (formularios, RAG y contenido) sin requerir un backend accesible.
 * `REVALIDATION_TOKEN` – define una cadena aleatoria (p.ej. `openssl rand -hex 32`) y reutilízala tanto en el frontend (Vercel) como en el backend (`REVALIDATION_TOKEN` en `backend/.env`). Almacénala como secreto en GitHub si piensas sincronizarla desde Actions.
-
-Si alguno de los valores obligatorios está ausente en el despliegue, el `EnvironmentGuard` mostrará un formulario para sincronizarlos automáticamente con Vercel usando los secretos del entorno de GitHub. Cuando `NEXT_PUBLIC_ENABLE_MOCKS=true`, el guardián se omite para que puedas navegar la experiencia demo sin configurar secretos.
 
 ### Deployment notes
 
